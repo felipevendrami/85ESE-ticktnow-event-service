@@ -1,10 +1,11 @@
 package com.ticketnow.event_service.model;
 
-import com.ticketnow.event_service.converter.LocalEventoConverter;
 import com.ticketnow.event_service.enums.StatusEvento;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
@@ -13,6 +14,8 @@ import java.time.LocalDateTime;
 @Table(name= "evento")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Evento {
 
     @Id
@@ -28,9 +31,8 @@ public class Evento {
     @Column(name = "descricao", nullable = false)
     private String descricao;
 
-    @NotNull(message = "As informações do local são obrigatórias")
-    @Convert(converter = LocalEventoConverter.class)
-    @Column(columnDefinition = "jsonb", nullable = false)
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_local_evento", referencedColumnName = "id")
     private LocalEvento local;
 
     @NotNull(message = "A data/hora da realização do evento é obrigatória.")
@@ -38,7 +40,7 @@ public class Evento {
     private LocalDateTime dataHora;
 
     @NotNull(message = "O preço do evento é obrigatório")
-    @Column(name = "preco", precision = 10, scale = 2, nullable = false)
+    @Column(name = "preco", nullable = false)
     private double preco;
 
     @NotNull(message = "A quantidade de tickets do evento é obrigatória")
@@ -49,14 +51,14 @@ public class Evento {
     @Column(name = "status")
     private StatusEvento status;
 
-    @Column(name = "data_hora_criacao", nullable = false)
-    private LocalDateTime dataHoraCriacao;
+    @Column(name = "data_hora_criacao", nullable = false, updatable = false)
+    private LocalDateTime dataHoraCriacao = LocalDateTime.now();
 
     @Column(name = "data_hora_finalizacao_vendas", nullable = false)
     private LocalDateTime dataHoraFinalizarVendas;
 
     @Column(name = "id_usuario")
-    private int idCriador;
+    private Long idCriador;
 
     @Column(name = "imagem")
     private String imagem;
