@@ -3,6 +3,7 @@ package com.ticketnow.event_service.controller;
 
 import com.ticketnow.event_service.model.Evento;
 import com.ticketnow.event_service.service.EventoService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,7 +13,7 @@ import java.util.List;
 @RequestMapping("/ticketnow_api/eventos")
 public class EventoController {
 
-    private EventoService eventoService;
+    private final EventoService eventoService;
 
     public EventoController(EventoService eventoService) {
         this.eventoService = eventoService;
@@ -27,31 +28,32 @@ public class EventoController {
     // List todos os eventos
     @GetMapping
     public List<Evento> listarTodosEventos(){
-        return null;
+        return eventoService.listarTodosEventos();
     }
 
     // Get evento por Id
-    @GetMapping("/{id}")
-    public ResponseEntity<?> buscarEventoPorId(@PathVariable int idEvento){
-        return null;
+    @GetMapping("/{idEvento}")
+    public ResponseEntity<?> buscarEventoPorId(@PathVariable Long idEvento){
+        Evento evento = eventoService.buscarEventoPorId(idEvento);
+        return ResponseEntity.ok(evento);
     }
 
     // Alterar evento
-    @PutMapping("/{id}")
-    public Evento atualizarEvento(@RequestBody Evento evento, @PathVariable Long idEvento){
-        return null;
+    @PutMapping("/{idEvento}")
+    public ResponseEntity<?> atualizarEvento(@RequestBody @Valid Evento eventoAtualizado, @PathVariable Long idEvento){
+        Evento ev = eventoService.alterarEvento(eventoAtualizado, idEvento);
+        return ResponseEntity.ok(ev);
     }
 
     // Deletar evento
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{idEvento}")
     public ResponseEntity<Void> deletarEvento(@PathVariable Long idEvento){
         return null;
     }
 
     // Alterar status do evento
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/{idEvento}/status")
     public ResponseEntity<?> alterarStatusEvento(@PathVariable Long idEvento, @RequestBody Evento evento){
-        return null;
-    }
+        return null;    }
 
 }

@@ -52,7 +52,7 @@ public class Evento {
     private StatusEvento status;
 
     @Column(name = "data_hora_criacao", nullable = false, updatable = false)
-    private LocalDateTime dataHoraCriacao = LocalDateTime.now();
+    private LocalDateTime dataHoraCriacao;
 
     @Column(name = "data_hora_finalizacao_vendas", nullable = false)
     private LocalDateTime dataHoraFinalizarVendas;
