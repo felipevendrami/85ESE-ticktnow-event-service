@@ -1,5 +1,8 @@
 package com.ticketnow.event_service.service;
 
+import com.ticketnow.event_service.client.TicketServiceClient;
+import com.ticketnow.event_service.dto.DisponibilidadeDTO;
+import com.ticketnow.event_service.dto.StatusEventoDTO;
 import com.ticketnow.event_service.enums.StatusEvento;
 import com.ticketnow.event_service.exception.RecursoNaoEncontradoException;
 import com.ticketnow.event_service.model.Evento;
@@ -12,10 +15,12 @@ import java.util.List;
 public class EventoService {
 
     private final EventoRepository eventoRepository;
+    private final TicketServiceClient ticketServiceClient;
     private Evento evento;
 
-    public EventoService(EventoRepository eventoRepository) {
+    public EventoService(EventoRepository eventoRepository, TicketServiceClient ticketServiceClient, TicketServiceClient ticketServiceClient1) {
         this.eventoRepository = eventoRepository;
+        this.ticketServiceClient = ticketServiceClient1;
     }
 
     public Evento cadastrarEvento(Evento novoEvento) {
@@ -24,7 +29,11 @@ public class EventoService {
         validaRegradeDatas();
         validaRegradeStatus();
 
-        return eventoRepository.save(novoEvento);
+        eventoRepository.save(novoEvento);
+
+        ticketServiceClient.enviarDisponibilidadeDoEvento(geracaoDisponibilidadeDTO());
+
+        return novoEvento;
     }
 
     public List<Evento> listarTodosEventos() {
@@ -37,24 +46,32 @@ public class EventoService {
     }
 
     public Evento alterarEvento(Evento eventoAtualizado, Long idEvento) {
-        Evento eventoExistente = eventoRepository.findById(idEvento)
+        evento = eventoRepository.findById(idEvento)
                .orElseThrow(() -> new RecursoNaoEncontradoException(String.format("O evento com o ID %d não foi encontrado", idEvento)));
 
-        eventoExistente.setTitulo(eventoAtualizado.getTitulo());
-        eventoExistente.setDescricao(eventoAtualizado.getDescricao());
-        eventoExistente.setLocal(eventoAtualizado.getLocal());
-        eventoExistente.setDataHora(eventoAtualizado.getDataHora());
-        eventoExistente.setPreco(eventoAtualizado.getPreco());
-        eventoExistente.setQuantidade(eventoAtualizado.getQuantidade());
-        eventoExistente.setDataHoraFinalizarVendas(eventoAtualizado.getDataHoraFinalizarVendas());
-        eventoExistente.setImagem(eventoAtualizado.getImagem());
-
-        evento = eventoExistente;
+        evento.setTitulo(eventoAtualizado.getTitulo());
+        evento.setDescricao(eventoAtualizado.getDescricao());
+        evento.setLocal(eventoAtualizado.getLocal());
+        evento.setDataHora(eventoAtualizado.getDataHora());
+        evento.setPreco(eventoAtualizado.getPreco());
+        evento.setQuantidade(eventoAtualizado.getQuantidade());
+        evento.setDataHoraFinalizarVendas(eventoAtualizado.getDataHoraFinalizarVendas());
+        evento.setImagem(eventoAtualizado.getImagem());
+        evento.setStatus(eventoAtualizado.getStatus());
 
         validaRegradeDatas();
         validaRegradeStatus();
+        ticketServiceClient.alterarDisponibilidadeDoEvento(geracaoDisponibilidadeDTO());
 
-        return eventoRepository.save(eventoExistente);
+        return eventoRepository.save(evento);
+    }
+
+    public Evento alterarStatusEvento(Long idEvento, StatusEventoDTO statusEventoDTO) {
+        evento = eventoRepository.findById(idEvento)
+                .orElseThrow(() -> new RecursoNaoEncontradoException(String.format("O evento com o ID %d não foi encontrado", idEvento)));
+
+        evento.setStatus(statusEventoDTO.getStatusEvento());
+        return eventoRepository.save(evento);
     }
 
     private void validaRegradeStatus() {
@@ -75,6 +92,15 @@ public class EventoService {
         if (evento.getDataHoraCriacao() == null) {
             evento.setDataHoraCriacao(LocalDateTime.now());
         }
+    }
+
+    private DisponibilidadeDTO geracaoDisponibilidadeDTO(){
+        DisponibilidadeDTO disponibilidadeEventoDTO = new DisponibilidadeDTO();
+        disponibilidadeEventoDTO.setIdEvento(evento.getId());
+        disponibilidadeEventoDTO.setQntTotalIngressos(evento.getQuantidade());
+        disponibilidadeEventoDTO.setStatusEvento(evento.getStatus());
+
+        return disponibilidadeEventoDTO;
     }
 
 }

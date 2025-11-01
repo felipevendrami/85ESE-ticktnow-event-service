@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ticketnow_api/eventos")
+@RequestMapping("/event_service")
 public class EventoController {
 
     private final EventoService eventoService;
@@ -40,7 +40,7 @@ public class EventoController {
 
     // Alterar evento
     @PutMapping("/{idEvento}")
-    public ResponseEntity<?> atualizarEvento(@RequestBody @Valid Evento eventoAtualizado, @PathVariable Long idEvento){
+    public ResponseEntity<?> alterarEvento(@RequestBody @Valid Evento eventoAtualizado, @PathVariable Long idEvento){
         Evento ev = eventoService.alterarEvento(eventoAtualizado, idEvento);
         return ResponseEntity.ok(ev);
     }
@@ -48,12 +48,7 @@ public class EventoController {
     // Deletar evento
     @DeleteMapping("/{idEvento}")
     public ResponseEntity<Void> deletarEvento(@PathVariable Long idEvento){
+        // TODO: Não precisa excluir se tiver reserva criada
         return null;
     }
-
-    // Alterar status do evento
-    @PatchMapping("/{idEvento}/status")
-    public ResponseEntity<?> alterarStatusEvento(@PathVariable Long idEvento, @RequestBody Evento evento){
-        return null;    }
-
 }
