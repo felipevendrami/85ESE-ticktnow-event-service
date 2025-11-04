@@ -18,9 +18,9 @@ public class EventoService {
     private final TicketServiceClient ticketServiceClient;
     private Evento evento;
 
-    public EventoService(EventoRepository eventoRepository, TicketServiceClient ticketServiceClient, TicketServiceClient ticketServiceClient1) {
+    public EventoService(EventoRepository eventoRepository, TicketServiceClient ticketServiceClient) {
         this.eventoRepository = eventoRepository;
-        this.ticketServiceClient = ticketServiceClient1;
+        this.ticketServiceClient = ticketServiceClient;
     }
 
     public Evento cadastrarEvento(Evento novoEvento) {
